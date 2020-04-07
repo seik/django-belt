@@ -2,8 +2,8 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from tests.app.constants import DRAFT, PUBLISHED, DUMMY, AUTO
-from tests.app.models import Post, Category
-from tests.factories import PostFactory, CategoryFactory
+from tests.app.models import Blog, Category, Post
+from tests.factories import BlogFactory, CategoryFactory, PostFactory
 
 
 class ModelTest(TestCase):
@@ -63,3 +63,9 @@ class ModelTest(TestCase):
         CategoryFactory.create_batch(size=10)
         categories = Category.objects.search(query="foo")
         self.assertEqual(0, categories.count())
+
+    def test_annotate_total_posts(self):
+        blog = BlogFactory()
+        PostFactory.create_batch(blog=blog, size=10)
+        annotated_blog = Blog.objects.annotate_total_posts().first()
+        self.assertEqual(10, annotated_blog.total_posts)
